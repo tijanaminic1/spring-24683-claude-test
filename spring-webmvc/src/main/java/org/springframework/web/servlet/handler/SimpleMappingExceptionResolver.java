@@ -213,6 +213,7 @@ public class SimpleMappingExceptionResolver extends AbstractHandlerExceptionReso
 	@Nullable
 	protected String determineViewName(Exception ex, HttpServletRequest request) {
 		String viewName = null;
+		final boolean debugEnabled = logger.isDebugEnabled();
 		if (this.excludedExceptions != null) {
 			for (Class<?> excludedEx : this.excludedExceptions) {
 				if (excludedEx.equals(ex.getClass())) {
@@ -226,7 +227,7 @@ public class SimpleMappingExceptionResolver extends AbstractHandlerExceptionReso
 		}
 		// Return default error view else, if defined.
 		if (viewName == null && this.defaultErrorView != null) {
-			if (logger.isDebugEnabled()) {
+			if (debugEnabled) {
 				logger.debug("Resolving to default view '" + this.defaultErrorView + "'");
 			}
 			viewName = this.defaultErrorView;
@@ -316,7 +317,8 @@ public class SimpleMappingExceptionResolver extends AbstractHandlerExceptionReso
 	 */
 	protected void applyStatusCodeIfPossible(HttpServletRequest request, HttpServletResponse response, int statusCode) {
 		if (!WebUtils.isIncludeRequest(request)) {
-			if (logger.isDebugEnabled()) {
+			final boolean debugEnabled = logger.isDebugEnabled();
+			if (debugEnabled) {
 				logger.debug("Applying HTTP status " + statusCode);
 			}
 			response.setStatus(statusCode);
