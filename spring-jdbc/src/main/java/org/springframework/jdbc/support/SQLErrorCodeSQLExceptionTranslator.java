@@ -175,7 +175,9 @@ public class SQLErrorCodeSQLExceptionTranslator extends AbstractFallbackSQLExcep
 		if (sqlEx instanceof BatchUpdateException && sqlEx.getNextException() != null) {
 			SQLException nestedSqlEx = sqlEx.getNextException();
 			if (nestedSqlEx.getErrorCode() > 0 || nestedSqlEx.getSQLState() != null) {
-				logger.debug("Using nested SQLException from the BatchUpdateException");
+				if (logger.isDebugEnabled()) {
+					logger.debug("Using nested SQLException from the BatchUpdateException");
+				}
 				sqlEx = nestedSqlEx;
 			}
 		}

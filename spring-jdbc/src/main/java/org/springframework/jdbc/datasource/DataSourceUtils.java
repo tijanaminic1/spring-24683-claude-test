@@ -105,14 +105,18 @@ public abstract class DataSourceUtils {
 		if (conHolder != null && (conHolder.hasConnection() || conHolder.isSynchronizedWithTransaction())) {
 			conHolder.requested();
 			if (!conHolder.hasConnection()) {
-				logger.debug("Fetching resumed JDBC Connection from DataSource");
+				if (logger.isDebugEnabled()) {
+					logger.debug("Fetching resumed JDBC Connection from DataSource");
+				}
 				conHolder.setConnection(fetchConnection(dataSource));
 			}
 			return conHolder.getConnection();
 		}
 		// Else we either got no holder or an empty thread-bound holder here.
 
-		logger.debug("Fetching JDBC Connection from DataSource");
+		if (logger.isDebugEnabled()) {
+			logger.debug("Fetching JDBC Connection from DataSource");
+		}
 		Connection con = fetchConnection(dataSource);
 
 		if (TransactionSynchronizationManager.isSynchronizationActive()) {
@@ -196,7 +200,7 @@ public abstract class DataSourceUtils {
 					exToCheck = exToCheck.getCause();
 				}
 				// "read-only not supported" SQLException -> ignore, it's just a hint anyway
-				if(debugEnabled){
+				if (debugEnabled) {
 					logger.debug("Could not set JDBC Connection read-only", ex);
 				}
 			}
@@ -254,7 +258,7 @@ public abstract class DataSourceUtils {
 			}
 		}
 		catch (Throwable ex) {
-			if(debugEnabled){
+			if (debugEnabled) {
 				logger.debug("Could not reset JDBC Connection after transaction", ex);
 			}
 		}
@@ -284,14 +288,14 @@ public abstract class DataSourceUtils {
 
 			// Reset read-only flag.
 			if (con.isReadOnly()) {
-				if (logger.isDebugEnabled()) {
+				if (debugEnabled) {
 					logger.debug("Resetting read-only flag of JDBC Connection [" + con + "]");
 				}
 				con.setReadOnly(false);
 			}
 		}
 		catch (Throwable ex) {
-			if(debugEnabled){
+			if (debugEnabled) {
 				logger.debug("Could not reset JDBC Connection after transaction", ex);
 			}
 		}
@@ -364,10 +368,14 @@ public abstract class DataSourceUtils {
 			doReleaseConnection(con, dataSource);
 		}
 		catch (SQLException ex) {
-			logger.debug("Could not close JDBC Connection", ex);
+			if (logger.isDebugEnabled()) {
+				logger.debug("Could not close JDBC Connection", ex);
+			}
 		}
 		catch (Throwable ex) {
-			logger.debug("Unexpected exception on closing JDBC Connection", ex);
+			if (logger.isDebugEnabled()) {
+				logger.debug("Unexpected exception on closing JDBC Connection", ex);
+			}
 		}
 	}
 

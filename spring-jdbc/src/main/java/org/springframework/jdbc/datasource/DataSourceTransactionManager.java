@@ -256,12 +256,13 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 	protected void doBegin(Object transaction, TransactionDefinition definition) {
 		DataSourceTransactionObject txObject = (DataSourceTransactionObject) transaction;
 		Connection con = null;
+		final boolean debugEnabled = logger.isDebugEnabled();
 
 		try {
 			if (!txObject.hasConnectionHolder() ||
 					txObject.getConnectionHolder().isSynchronizedWithTransaction()) {
 				Connection newCon = obtainDataSource().getConnection();
-				if (logger.isDebugEnabled()) {
+				if (debugEnabled) {
 					logger.debug("Acquired Connection [" + newCon + "] for JDBC transaction");
 				}
 				txObject.setConnectionHolder(new ConnectionHolder(newCon), true);
@@ -279,7 +280,7 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 			// configured the connection pool to set it already).
 			if (con.getAutoCommit()) {
 				txObject.setMustRestoreAutoCommit(true);
-				if (logger.isDebugEnabled()) {
+				if (debugEnabled) {
 					logger.debug("Switching JDBC Connection [" + con + "] to manual commit");
 				}
 				con.setAutoCommit(false);
@@ -363,6 +364,7 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 	@Override
 	protected void doCleanupAfterCompletion(Object transaction) {
 		DataSourceTransactionObject txObject = (DataSourceTransactionObject) transaction;
+		final boolean debugEnabled = logger.isDebugEnabled();
 
 		// Remove the connection holder from the thread, if exposed.
 		if (txObject.isNewConnectionHolder()) {
@@ -379,11 +381,13 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 					con, txObject.getPreviousIsolationLevel(), txObject.isReadOnly());
 		}
 		catch (Throwable ex) {
-			logger.debug("Could not reset JDBC Connection after transaction", ex);
+			if (debugEnabled) {
+				logger.debug("Could not reset JDBC Connection after transaction", ex);
+			}
 		}
 
 		if (txObject.isNewConnectionHolder()) {
-			if (logger.isDebugEnabled()) {
+			if (debugEnabled) {
 				logger.debug("Releasing JDBC Connection [" + con + "] after transaction");
 			}
 			DataSourceUtils.releaseConnection(con, this.dataSource);
