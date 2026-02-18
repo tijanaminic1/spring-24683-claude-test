@@ -1,0 +1,1 @@
+Extract isDebugEnabled() checks to local variables, Add log level checks before log input in some classes.
